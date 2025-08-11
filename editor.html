@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="editorQTI/editor.css">
+    <script src="editorQTI/editor.js"></script>
+    <script src="quizQTI.js"></script>
+</head>
+<body>
+
+  <div class="editor">
+    <div class="editor-container">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button title="Bold" onclick="execCmd('bold')"><b>B</b></button>
+        <button title="Italic" onclick="execCmd('italic')"><i>I</i></button>
+        <button title="Underline" onclick="execCmd('underline')"><u>U</u></button>
+        <button title="Strikethrough" onclick="execCmd('strikeThrough')"><s>S</s></button>
+        <select title="Font" onchange="execCmd('fontName', this.value)">
+          <option value="Arial">Arial</option>
+          <option value="Courier">Courier</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Georgia">Georgia</option>
+        </select>
+        <select title="Style" onchange="execCmd('formatBlock', this.value)">
+          <option value="p">Normal</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+        </select>
+        <input type="color" title="Font Color" onchange="execCmd('foreColor', this.value)">
+        <button title="Align Left" onclick="execCmd('justifyLeft')"><i>L</i></button>
+        <button title="Align Center" onclick="execCmd('justifyCenter')"><i>C</i></button>
+        <button title="Align Right" onclick="execCmd('justifyRight')"><i>R</i></button>
+        <button title="Insert Link" onclick="execCmd('createLink', '')">
+          <i>L</i>
+        </button>
+        <button title="Insert Image" onclick="execCmd('insertImage', prompt('Enter image URL:', 'http://'))">
+          <i>Img</i>
+        </button>
+        <button title="Insert QTI" onclick="insertTextAtCaret( prompt('Enter QTI type:'))">
+          <i>QTI</i>
+        </button>
+        <button title="Code View" onclick="toggleCodeView()"><i>HTML</i></button>
+      </div>
+      <!-- Editor Section -->
+      <div class="display-container">
+        <div id="editor" contentEditable="true"></div>
+        <textarea id="code-view" style="display:none;"></textarea>
+      </div>
+      <!--Overlay Data Window-->
+      <div id="editor-data-window"></div>
+      <!-- Preview Button -->
+      <button onclick="prepareContentForSave()">Preview</button>
+    </div>
+    <!-- Preview Section -->
+    <div>
+      <h2>Content Preview</h2>
+      <div id="display-content"></div>
+    </div>
+  </div>
+<editor-custom-element></editor-custom-element>
+  <script>
+    const editor = new textEditor({
+      container: `texteditor`
+    });
+  </script>
+</body>
+</html>
