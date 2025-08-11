@@ -2,8 +2,8 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="editorQTI/editor.css">
-    <script src="editorQTI/editor.js"></script>
+    <link rel="stylesheet" href="editor.css">
+    <script src="editor.js"></script>
     <script src="quizQTI.js"></script>
 </head>
 <body>
@@ -62,6 +62,17 @@
   <script>
     const editor = new textEditor({
       container: `texteditor`
+    });
+    editor.addAction({
+      label: `QTI Interaction type`,
+      name: `interactio_type`,
+      type: `select`,
+      options: [`Add QTI Interaction`, `Choice Interaction`, `Fill in the Blank`, `Extended Text Interaction`],
+      defaultValue: `Add QTI Interaction`,
+      command: (event) => {
+        console.log(event.srcElement.value);
+        event.srcElement.value = `Add QTI Interaction`;
+      }
     });
   </script>
 </body>

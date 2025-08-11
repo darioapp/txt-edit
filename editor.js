@@ -31,16 +31,38 @@ class customElement extends HTMLElement {
     connectCallback() {}
 }
 
-var data = {
-    name: `QTI Interaction`,
+
+var qtiChoiceInteractionData = {
     items: [{
-        label: `Interaction type`,
-        name: `interactio_type`,
+        label: `Max choices`,
+        name: `max-choices`,
+        type: `number`, //Non-negative integer
+        defaultValue: 1,
+        required: false
+    },
+    {
+        label: `Min choices`,
+        name: `min-choices`,
+        type: `number`, //Non-negative integer
+        defaultValue: 0,
+        required: false
+    },
+    {
+        label: `Orientation`,
+        name: `orientation`,
         type: `select`,
-        options: [`Choice Interaction`, `Fill in the Blank`, `Extended Text Interaction`],
+        options: [`vertical`, `horizontal`],
         defaultValue: true,
-        required: true},
-    ]
+        required: false
+    },
+    {
+        label: `Shuffle`,
+        name: `shuffle`,
+        type: `radio`,
+        options: [false, true],
+        defaultValue: true,
+        required: false
+    }]
 }
 // Define the new element
 window.customElements.define('editor-custom-element', customElement);
@@ -51,7 +73,7 @@ class textEditor {
     }) {
         this.containerName = initObj.container;
 
-        this.actions = new Map([
+        /*this.actions = new Map([
             ['bold', {name: `Bold`, command: 'bold', icon: 'B'}],
             ['italic', {name: 'Italic', command: 'italic', icon: 'I'}],
             ['underline', {name: 'Underline', command: 'underline', icon: 'U'}],
@@ -61,15 +83,67 @@ class textEditor {
             ['justify Left', {name: 'Justify Left', command: 'justifyLeft', icon: 'Left' }],
             ['justify Center', {name: 'Justify Center', command: 'justifyCenter', icon: 'Center' }],
             ['justify Right', {name: 'Justify Right', command: 'justifyRight', icon: 'Right' }],
-            ['justify Full', {name: 'Justify Full', command: 'justifyFull'}]
-        ]);
+            ['justify Full', {name: 'Justify Full', command: 'justifyFull'}],
+            ['font', {label: 'Font', name: 'font', type: 'select', options: ['Arial', 'Courier', 'Times New Roman', 'Georgia'], defaultValue: 'Arial', icon: null, command: () => {execCmd('fontName', this.value);}}]
+        ]);*/
+        this.actions = [{
+            label: `Bold`,
+            name: 'bold',
+            type: 'button',
+            icon: '<b>B</b>',
+            command: () => {execCmd('bold')}
+        },
+        {
+            label: `Italic`,
+            name: 'italic',
+            type: 'button',
+            icon: '<i>I</i>',
+            command: () => {execCmd('italic')}
+        },
+        {
+            label: `Underline`,
+            name: 'underline',
+            type: 'button',
+            icon: '<u>U</u>',
+            command: () => {execCmd('underline')}
+        },
+        {
+            label: 'Font',
+            name: 'font',
+            type: 'select',
+            options: ['Arial', 'Courier', 'Times New Roman', 'Georgia'],
+            defaultValue: 'Arial',
+            icon: null,
+            command: (event) => {
+                execCmd('fontName', event.target.value);
+            }
+        }];
+        /* var data = {
+    name: `QTI Interaction`,
+    items: [{
+        label: `Interaction type`,
+        name: `interactio_type`,
+        type: `select`,
+        options: [`Choice Interaction`, `Fill in the Blank`, `Extended Text Interaction`],
+        defaultValue: true,
+        required: true},
+    ]
+}
+*/
 
         
         this.displayContent = document.getElementById("display-content");
         this.init();
     }
 
-    addCustomAction(action = {name: "", command: () => {}, icon: ""}) {}
+    addAction(action = {name: "", type: "", command: () => {}, icon: ""}) {
+        if (action.name && action.type && action.command) {
+            this.actions.push(action);
+            this.createToolbar();
+        } else {
+            console.warn("Action not added. Actions must have a name, type, and command funtion.");
+        }
+    }
 
     editorWindow(data) {
         var editorOverlay = document.getElementById('editor-data-window');
@@ -80,6 +154,8 @@ class textEditor {
         console.log(nodeWindow);
         nodeWindow.innerHTML = data.inputform();
     }
+
+
 
     createToolbar() {
         const toolbar = document.createElement('div');
@@ -105,6 +181,36 @@ class textEditor {
             btn.onclick = () => execCmd(button.command);
             toolbar.appendChild(btn);
         });
+
+        for(let i=0; i<this.actions.length; i++) {
+            switch (this.actions[i].type) {
+                case 'button':
+                    const button = document.createElement('button');
+                    button.innerHTML = this.actions[i].icon;
+                    button.title = this.actions[i].label;
+                    button.onclick = this.actions[i].command;
+                    toolbar.appendChild(button);
+                    break;
+                case 'select':
+                    const selectInput = document.createElement(`select`);
+                    selectInput.title = this.actions[i].label;
+                    selectInput.name = this.actions[i].name;
+                    selectInput.onchange = this.actions[i].command;
+                    for (let j = 0; j < this.actions[i].options.length; j++) {
+                        let option = document.createElement(`option`);
+                        option.value = this.actions[i].options[j];
+                        option.text = this.actions[i].options[j];
+                        if (this.actions[i].options[j] == this.actions[i].defaultValue) {
+                            option.setAttribute('selected',true);
+                        }
+                        selectInput.appendChild(option);
+                    }
+                    toolbar.appendChild(selectInput);
+                    break;
+                default:
+                    console.warn(`Unknown action type: ${this.actions[i].type}`);
+            }
+        }
     }
 
     createWorkspace() {
