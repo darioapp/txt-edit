@@ -4,10 +4,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="editor.css">
     <script src="editor.js"></script>
-    <script src="quizQTI.js"></script>
+    <script src="../quizQTI/quizQTI.js"></script>
 </head>
 <body>
-  <txt-editor></txt-editor>
+  <txt-editor><p>Identify the missing word in this famous quote from Shakespeare's Richard III.</p>
+  <div style="border: 1px solid;">
+   <blockquote>
+    <p>Now is the winter of our discontent<br/>
+      Made glorious summer by this sun of <br/>
+      And all the clouds that lour'd upon our house<br/>
+      In the deep bosom of the ocean buried.</p>
+   </blockquote>
+  </div></txt-editor>
+  <txt-editor id="QTIeditor" editor></txt-editor>
+
 
   <div class="editor">
     <div class="editor-container">
@@ -61,6 +71,17 @@
   </div>
 <editor-custom-element></editor-custom-element>
   <script>
+
+    const textEntryInteractionXML = `<p>Identify the missing word in this famous quote from Shakespeare's Richard III.</p>
+  <div>
+   <blockquote>
+    <p>Now is the winter of our discontent<br/>
+      Made glorious summer by this sun of <qti-interaction response-identifier="RESPONSE" />;<br/>
+      And all the clouds that lour'd upon our house<br/>
+      In the deep bosom of the ocean buried.</p>
+   </blockquote>
+  </div>`;
+
     const editor = new textEditor({
       container: `texteditor`
     });
@@ -76,17 +97,33 @@
       }
     });
 
-    document.getElementsByTagName('txt-editor')[0].addAction({
+    
+
+
+    const QTIeditor = new txtEdit({
+      id: "QTIeditor",
+      save: (content) => {
+        const displayContent = document.getElementById("display-content");
+        displayContent.innerHTML = content;
+      },
+    });
+
+    QTIeditor.addAction({
       label: `QTI Interaction type`,
       name: `interactio_type`,
       type: `select`,
       options: [`Add QTI Interaction`, `Choice Interaction`, `Fill in the Blank`, `Extended Text Interaction`],
       defaultValue: `Add QTI Interaction`,
-      command: (event) => {
-        console.log(event.srcElement.value);
-        event.srcElement.value = `Add QTI Interaction`;
+      command: function (option) {
+        console.log(option);
+        let newDiv = document.createElement('div');
+        newDiv.className = `choice-onteraction`;
+        return newDiv;
       }
+      /*(event) => {console.log(event.srcElement.value, this); event.srcElement.value = `Add QTI Interaction`; }*/
     });
+
+    QTIeditor.edit(textEntryInteractionXML);
   </script>
 </body>
 </html>
