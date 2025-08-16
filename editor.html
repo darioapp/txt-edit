@@ -7,6 +7,7 @@
     <script src="quizQTI.js"></script>
 </head>
 <body>
+  <txt-editor></txt-editor>
 
   <div class="editor">
     <div class="editor-container">
@@ -64,6 +65,18 @@
       container: `texteditor`
     });
     editor.addAction({
+      label: `QTI Interaction type`,
+      name: `interactio_type`,
+      type: `select`,
+      options: [`Add QTI Interaction`, `Choice Interaction`, `Fill in the Blank`, `Extended Text Interaction`],
+      defaultValue: `Add QTI Interaction`,
+      command: (event) => {
+        console.log(event.srcElement.value);
+        event.srcElement.value = `Add QTI Interaction`;
+      }
+    });
+
+    document.getElementsByTagName('txt-editor')[0].addAction({
       label: `QTI Interaction type`,
       name: `interactio_type`,
       type: `select`,

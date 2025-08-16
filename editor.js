@@ -1,3 +1,144 @@
+class txtEdit extends HTMLElement {
+    constructor() {
+        super();
+        this.actions = [{
+            label: `Bold`,
+            name: 'bold',
+            type: 'button',
+            icon: '<b>B</b>',
+            command: () => {execCmd('bold')}
+        },
+        {
+            label: `Italic`,
+            name: 'italic',
+            type: 'button',
+            icon: '<i>I</i>',
+            command: () => {execCmd('italic')}
+        },
+        {
+            label: `Underline`,
+            name: 'underline',
+            type: 'button',
+            icon: '<u>U</u>',
+            command: () => {execCmd('underline')}
+        },
+        {
+            label: 'Font',
+            name: 'font',
+            type: 'select',
+            options: ['Arial', 'Courier', 'Times New Roman', 'Georgia'],
+            defaultValue: 'Arial',
+            icon: null,
+            command: (event) => {
+                execCmd('fontName', event.target.value);
+            }
+        }];
+    }
+
+    addAction(action = {name: "", type: "", command: () => {}, icon: ""}) {
+        if (action.name && action.type && action.command) {
+            this.actions.push(action);
+            this.createToolbar();
+        } else {
+            console.warn("Action not added. Actions must have a name, type, and command funtion.");
+        }
+    }
+
+    // Method to create the toolbar
+    createToolbar() {
+        const toolbar = this.toolbar;
+        toolbar.innerHTML = ''; // Clear existing tools
+
+        // Create buttons and select inputs for each txtEdit action
+        for(let i=0; i<this.actions.length; i++) {
+            switch (this.actions[i].type) {
+                case 'button':
+                    const button = document.createElement('button');
+                    button.innerHTML = this.actions[i].icon;
+                    button.title = this.actions[i].label;
+                    button.onclick = this.actions[i].command;
+                    toolbar.appendChild(button);
+                    break;
+                case 'select':
+                    const selectInput = document.createElement(`select`);
+                    selectInput.title = this.actions[i].label;
+                    selectInput.name = this.actions[i].name;
+                    selectInput.onchange = this.actions[i].command;
+                    for (let j = 0; j < this.actions[i].options.length; j++) {
+                        let option = document.createElement(`option`);
+                        option.value = this.actions[i].options[j];
+                        option.text = this.actions[i].options[j];
+                        if (this.actions[i].options[j] == this.actions[i].defaultValue) {
+                            option.setAttribute('selected',true);
+                        }
+                        selectInput.appendChild(option);
+                    }
+                    toolbar.appendChild(selectInput);
+                    break;
+                default:
+                    console.warn(`Unknown action type: ${this.actions[i].type}`);
+            }
+        }
+    }
+
+    connectedCallback() {
+        // Create shadow DOM
+        this.__root = this.attachShadow({mode: 'closed'});
+
+        // Link editor.css to the shadow DOM to style the editor
+        const styleLink = document.createElement('link');
+        styleLink.setAttribute('rel', 'stylesheet');
+        styleLink.setAttribute('href', 'editor.css');
+        this.__root.appendChild(styleLink);
+
+        // Create the editor container
+        const container = document.createElement('div');
+        container.className = `editor-container`;
+        container.id = `editor-container`;
+        container.style.display = `flex`;
+        container.style.flexDirection = `column`;
+        container.style.flexWrap = `nowrap`;
+        container.style.justifyContent = `space-between`;
+        container.style.minHeight = '200px';
+
+        // Create the editor toolbar
+        const toolbar = document.createElement('div');
+        toolbar.id = 'editor-toolbar'
+        toolbar.className = 'editor-toolbar';
+        toolbar.style.display = 'flex';
+        toolbar.style.flexWrap = 'wrap';
+        container.appendChild(toolbar);
+
+        // Create the editor workspace
+        const workspace = document.createElement('div');
+        workspace.id = 'editor-workspace';
+        workspace.className = 'editor-workspace';
+        const textView = document.createElement('div');
+        textView.id = `text-content`;
+        textView.contentEditable = true;
+        textView.className = 'textview';
+        workspace.appendChild(textView);
+        const codeView = document.createElement('div');
+        codeView.id = `code-view`;
+        codeView.contentEditable = true;
+        codeView.className = 'codeview';
+        codeView.style.display = 'none';
+        workspace.appendChild(codeView);
+        container.appendChild(workspace);
+        this.editor = document.getElementById("text-content");
+        this.codeView = document.getElementById("code-view");
+
+        console.log(container);
+        this.__root.appendChild(container);
+
+        this.toolbar = this.__root.getElementById('editor-toolbar');
+        this.createToolbar();
+    }
+}
+
+// Define the new element
+window.customElements.define('txt-editor', txtEdit);
+
 class createLink{
     constructor(url,urltext){
         this.url=url;
@@ -159,7 +300,7 @@ class textEditor {
 
     createToolbar() {
         const toolbar = document.createElement('div');
-        toolbar.className = 'toolbar';
+        toolbar.className = 'editor-toolbar';
         this.container.appendChild(toolbar);
 
         const buttons = [
@@ -215,7 +356,7 @@ class textEditor {
 
     createWorkspace() {
         const workspace = document.createElement('div');
-        workspace.className = 'workspace';
+        workspace.className = 'editor-workspace';
         const textView = document.createElement('div');
         textView.id = `text-content`;
         textView.contentEditable = true;
